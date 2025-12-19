@@ -73,7 +73,11 @@ define('CC_LCU_LOCK_PLUGINS', false);
 
 ## 🔌 Filtro `cc_lcu_blocked_plugin_update_ui`
 
-### ✔️ Modo consigliato ( unico filtro )
+> ⚠️ **Usane SOLO UNO**, in base alla versione di PHP in uso.
+
+---
+
+### ✔️ PHP **< 7.4** ( compatibile con requisito minimo )
 
 ```php
 add_filter('cc_lcu_blocked_plugin_update_ui', function ($plugins) {
@@ -87,6 +91,39 @@ add_filter('cc_lcu_blocked_plugin_update_ui', function ($plugins) {
     return array_unique($plugins);
 });
 ```
+
+---
+
+### ✔️ PHP **≥ 7.4** ( sintassi moderna )
+
+```php
+add_filter('cc_lcu_blocked_plugin_update_ui', function ($plugins) {
+
+    return array_unique([
+        ...$plugins,
+        'altro-plugin/altro-plugin.php',
+        'secondo-plugin/secondo-plugin.php',
+        'terzo-plugin/terzo-plugin.php',
+    ]);
+});
+```
+
+---
+
+## 🧠 Note importanti
+
+-   ❌ **NON usare entrambi i filtri**
+-   ✅ La logica è identica, cambia solo la sintassi
+-   📌 Il MU-plugin **dichiara `Requires PHP: 7.2`**
+-   🔧 Ambienti Docker / Enterprise possono usare tranquillamente PHP ≥ 7.4
+
+---
+
+## ✅ Raccomandazione CodeCorn™
+
+-   **Produzione conservativa** → versione PHP < 7.4
+-   **Ambienti moderni / CI-CD** → versione PHP ≥ 7.4
+-   **Futuro v1.5.0** → possibile bump requisito PHP
 
 ---
 
