@@ -15,7 +15,7 @@
  * Author URI: https://github.com/CodeCornTech
  *
  * Since: 04-12-2025
- * Version: 1.2.0
+ * Version: 1.3.0
  * Requires PHP: 7.2
  * Requires at least: 5.8
  * Tested up to: 6.9
@@ -44,7 +44,14 @@
  */
 
 defined('ABSPATH') || exit;
-
+/**
+ * -------------------------------------------------------------
+ *  Global Enable / Disable
+ * -------------------------------------------------------------
+ */
+if (defined('CC_LCU_ENABLED') && CC_LCU_ENABLED === false) {
+    return;
+}
 /**
  * -------------------------------------------------------------
  *  Allowed emails ( default )
@@ -160,3 +167,78 @@ add_action('admin_init', function () {
 //     return array_unique($emails);
 
 // }, 10, 2);
+
+// ## ✅ STRATEGIA ( consigliata CodeCorn™ )
+
+// ### 1️⃣ Flag globale di bypass
+
+// ```php
+// CC_LCU_ENABLED
+// ```
+
+// * `true`  → MU **attivo**
+// * `false` → MU **totalmente bypassato**
+
+// ---
+
+// ## 🧠 IMPLEMENTAZIONE ( minimale e sicura )
+
+// ### 🔐 Costante ( env-driven )
+
+// In **wp-config / WORDPRESS_CONFIG_EXTRA**:
+
+// ```php
+// defined('CC_LCU_ENABLED')
+//     || define(
+//         'CC_LCU_ENABLED',
+//         filter_var(
+//             getenv('CC_LCU_ENABLED') ?: true,
+//             FILTER_VALIDATE_BOOLEAN
+//         )
+//     );
+// ```
+
+// Nel `.env`:
+
+// ```env
+// CC_LCU_ENABLED=true
+// ```
+
+
+// ## 🧩 EXTRA ( opzionali ma top )
+
+// ### 🔁 Toggle via filtro
+
+// ```php
+// if (! apply_filters('cc_lcu_enabled', CC_LCU_ENABLED)) {
+//     return;
+// }
+// ```
+
+// Uso:
+
+// ```php
+// add_filter('cc_lcu_enabled', '__return_false');
+// ```
+
+// ---
+
+// ### 🛡️ Log quando qualcuno prova
+
+// ```php
+// do_action(
+//     'cc_lcu_blocked_access',
+//     $user,
+//     $pagenow
+// );
+// ```
+
+// ---
+
+// ### 🧠 Safe mode per staging
+
+// ```php
+// if (defined('WP_ENVIRONMENT_TYPE') && WP_ENVIRONMENT_TYPE !== 'production') {
+//     return;
+// }
+// ```

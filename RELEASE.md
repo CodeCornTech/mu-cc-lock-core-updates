@@ -1,17 +1,45 @@
-## 🔒 CC Lock Core Updates – v1.2.0
-
-### ✨ Added
-- WordPress-compliant plugin header fields
-- Requires PHP metadata
-- Update URI for tooling and audits
-- Version alignment with GitHub releases
-
-### 🧠 Notes
-- No behavioral changes
-- Safe metadata-only release
-- Fully backward compatible
+# 📦 Releases – CC Lock Core Updates
 
 ---
 
-**Author:** CodeCorn™  
-**License:** GPL-2.0+
+## 🔖 v1.3.0 – 2025-12-19
+
+### ✨ Added
+
+-   Kill-switch globale `CC_LCU_ENABLED`
+-   Supporto ENV / wp-config / CI-CD
+-   Bypass totale del MU senza rimozione file
+-   Compatibilità completa Docker & WP-CLI
+
+### 🔒 Security
+
+-   Nessun accesso UI agli update core
+-   WP-CLI sempre consentito
+-   Caricamento condizionale idempotente
+
+### 🧠 Notes
+
+Questa release rende il plugin **enterprise-ready** permettendo
+il controllo centralizzato del comportamento senza modificare il codice.
+
+---
+
+## 🔖 v1.2.0 – 2025-12-04
+
+-   Blocco completo update core
+-   Nascondi UI aggiornamenti
+-   Accesso diretto bloccato
+-   Allowlist email admin
+
+---
+
+## 🔖 v1.1.0
+
+-   Miglioramenti sicurezza
+-   Refactor admin guard
+
+---
+
+## 🔖 v1.0.0
+
+-   First stable release

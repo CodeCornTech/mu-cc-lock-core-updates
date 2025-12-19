@@ -21,12 +21,40 @@ Pensato per ambienti **gestiti , enterprise , Docker , CI/CD** dove gli update d
 -   ✅ Zero configurazione
 -   ✅ Zero overhead
 -   ✅ MU-Plugin ( non disattivabile da admin )
+-   ✅ Zero overhead
+-   ✅ **Kill-switch centralizzato via ENV / wp-config**
+-   ✅ WP-CLI sempre consentito
+
+---
+
+## 🔧 Toggle Globale ( Enterprise )
+
+Il comportamento del plugin può essere **abilitato / disabilitato centralmente** senza toccare il file.
+
+### `.env`
+
+```env
+CC_LCU_ENABLED=true
+```
+
+### `wp-config.php` / `WORDPRESS_CONFIG_EXTRA`
+
+```php
+define('CC_LCU_ENABLED', true);
+```
+
+| Valore  | Effetto                   |
+| ------- | ------------------------- |
+| `true`  | Core updates **bloccati** |
+| `false` | WordPress torna **stock** |
 
 ---
 
 ### 📥 Download diretto ( MU Plugin )
 
-👉 https://github.com/CodeCornTech/mu-cc-lock-core-updates/releases/latest/download/mu-cc-lock-core-updates.php
+👉 [https://github.com/CodeCornTech/mu-cc-lock-core-updates/releases/latest/download/mu-cc-lock-core-updates.php](https://github.com/CodeCornTech/mu-cc-lock-core-updates/releases/latest/download/mu-cc-lock-core-updates.php)
+
+---
 
 ## 📦 Installazione
 
@@ -36,13 +64,13 @@ cd wp-content/mu-plugins || exit 1
 curl -O https://raw.githubusercontent.com/CodeCornTech/mu-cc-lock-core-updates/main/mu-cc-lock-core-updates.php
 ```
 
-Oppure copia manualmente il file :
+Oppure copia manualmente :
 
 ```
 wp-content/mu-plugins/mu-cc-lock-core-updates.php
 ```
 
-> Non serve attivarlo : i MU-plugin vengono caricati automaticamente .
+> I MU-plugin vengono caricati automaticamente .
 
 ---
 
