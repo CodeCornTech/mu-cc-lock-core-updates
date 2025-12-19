@@ -4,24 +4,26 @@
  *  CodeCorn™ MU Plugin
  * =============================================================
  *
- *  Name        : CC Lock Core Updates
- *  Description : Disabilita completamente gli aggiornamenti
- *                del core WordPress ( automatici e manuali )
- *                e ne impedisce l’accesso dalla UI admin .
+ * Plugin Name: CC Lock Core Updates
+ * Description: Disabilita completamente gli aggiornamenti del core WordPress ( automatici e manuali ) e ne impedisce l’accesso dalla UI admin .
  *
- *  Type        : Must-Use Plugin
- *  Scope       : WordPress Core Updates
+ * Type: Must-Use Plugin
+ * Scope: WordPress Core Updates
  *
- *  Version     : 1.1.0
- *  Since       : 04-12-2025
- *  Tested up to: WordPress 6.9
+ * Plugin URI: https://github.com/CodeCornTech/mu-cc-lock-core-updates
+ * Author: CodeCorn™
+ * Author URI: https://github.com/CodeCornTech
  *
- *  Plugin URI  : https://github.com/CodeCornTech/mu-cc-lock-core-updates
- *  Author      : CodeCorn™
- *  Author URI  : https://github.com/CodeCornTech
+ * Since: 04-12-2025
+ * Version: 1.2.0
+ * Requires PHP: 7.2
+ * Requires at least: 5.8
+ * Tested up to: 6.9
  *
- *  License     : GPL-2.0+
- *  License URI : https://www.gnu.org/licenses/gpl-2.0.html
+ * Update URI: https://github.com/CodeCornTech/mu-cc-lock-core-updates/releases/latest/download/mu-cc-lock-core-updates.php
+ *
+ * License: GPL-2.0+
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
  * =============================================================
  *  ⚠️  NOTE
