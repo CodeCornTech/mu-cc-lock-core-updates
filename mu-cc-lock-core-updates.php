@@ -15,7 +15,7 @@
  * Author URI: https://github.com/CodeCornTech
  *
  * Since: 04-12-2025
- * Version: 1.3.0
+ * Version: 1.4.0
  * Requires PHP: 7.2
  * Requires at least: 5.8
  * Tested up to: 6.9
@@ -52,193 +52,233 @@ defined('ABSPATH') || exit;
 if (defined('CC_LCU_ENABLED') && CC_LCU_ENABLED === false) {
     return;
 }
+
 /**
  * -------------------------------------------------------------
- *  Allowed emails ( default )
- *  Filtrabile via hook
+ *  CORE UPDATES LOCK
  * -------------------------------------------------------------
  */
-defined('CC_LCU_ALLOWED_EMAILS') || define('CC_LCU_ALLOWED_EMAILS', [
-    'f.girolami@codecorn.it',
-]);
+if (!defined('CC_LCU_LOCK_CORE') || CC_LCU_LOCK_CORE !== false) {
 
-/**
- * -------------------------------------------------------------
- *  Disable Core Update Checks
- * -------------------------------------------------------------
- */
-add_filter('pre_site_transient_update_core', '__return_null');
-
-/**
- * -------------------------------------------------------------
- *  Disable Automatic Updater
- * -------------------------------------------------------------
- */
-add_filter('automatic_updater_disabled', '__return_true');
-add_filter('wp_auto_update_core', '__return_false');
-
-/**
- * -------------------------------------------------------------
- *  Hide "Updates" submenu from Dashboard
- * -------------------------------------------------------------
- */
-add_action('admin_menu', function () {
-    remove_submenu_page('index.php', 'update-core.php');
-});
-
-/**
- * -------------------------------------------------------------
- *  Block direct access to update-core.php
- *  ( allow only specifics user email )
- * -------------------------------------------------------------
- */
-add_action('admin_init', function () {
-    global $pagenow;
-
-    // Solo admin area
-    if (!is_admin()) {
-        return;
-    }
-
-    // Solo pagina update core
-    if ($pagenow !== 'update-core.php') {
-        return;
-    }
-
-    // Consenti sempre via WP-CLI
-    if (defined('WP_CLI') && WP_CLI) {
-        return;
-    }
-
-    // Utente corrente
-    $user = wp_get_current_user();
-
-    // Safety guard
-    if (!$user || empty($user->user_email)) {
-        wp_die(
-            'Accesso negato .',
-            'Accesso negato',
-            ['response' => 403]
-        );
-    }
-/**
-     * ---------------------------------------------------------
-     *  Allowed emails ( filtrabile )
-     * ---------------------------------------------------------
+    /**
+     * -------------------------------------------------------------
+     *  Allowed emails ( default )
+     *  Filtrabile via hook
+     * -------------------------------------------------------------
      */
-    $allowed_emails = apply_filters(
-        'cc_lcu_allowed_emails',
-        CC_LCU_ALLOWED_EMAILS,
-        $user
-    );
+    defined('CC_LCU_ALLOWED_EMAILS') || define('CC_LCU_ALLOWED_EMAILS', [
+        'f.girolami@codecorn.it',
+    ]);
 
-    if (! in_array($user->user_email, (array) $allowed_emails, true)) {
-        wp_die(
-            'Aggiornamenti del core disabilitati dall’amministratore di sistema .',
-            'Accesso negato',
-            ['response' => 403]
+
+    /**
+     * -------------------------------------------------------------
+     *  Disable Core Update Checks
+     * -------------------------------------------------------------
+     */
+    add_filter('pre_site_transient_update_core', '__return_null');
+
+    /**
+     * -------------------------------------------------------------
+     *  Disable Automatic Updater
+     * -------------------------------------------------------------
+     */
+    add_filter('automatic_updater_disabled', '__return_true');
+    add_filter('wp_auto_update_core', '__return_false');
+
+    /**
+     * -------------------------------------------------------------
+     *  Hide "Updates" submenu from Dashboard
+     * -------------------------------------------------------------
+     */
+    add_action('admin_menu', function () {
+        remove_submenu_page('index.php', 'update-core.php');
+    });
+
+    /**
+     * -------------------------------------------------------------
+     *  Block direct access to update-core.php
+     *  ( allow only specifics user email )
+     * -------------------------------------------------------------
+     */
+    add_action('admin_init', function () {
+
+        // Safety : evita double execution
+        if (did_action('admin_init') > 1) {
+            return;
+        }
+
+        global $pagenow;
+
+        // Solo  admin area e pagina update core
+        if (!is_admin() || $pagenow !== 'update-core.php') {
+            return;
+        }
+
+
+        // Consenti sempre via WP-CLI
+        if (defined('WP_CLI') && WP_CLI) {
+            return;
+        }
+
+        // Utente corrente
+        $user = wp_get_current_user();
+
+        // Safety guard
+        if (!$user || empty($user->user_email)) {
+            wp_die(
+                'Accesso negato .',
+                'Accesso negato',
+                ['response' => 403]
+            );
+        }
+        /**
+         * ---------------------------------------------------------
+         *  Allowed emails ( filtrabile )
+         * ---------------------------------------------------------
+         */
+        $allowed_emails = apply_filters(
+            'cc_lcu_allowed_emails',
+            CC_LCU_ALLOWED_EMAILS,
+            $user
+        );
+
+        if (!in_array($user->user_email, (array) $allowed_emails, true)) {
+            wp_die(
+                'Aggiornamenti del core disabilitati dall’amministratore di sistema .',
+                'Accesso negato',
+                ['response' => 403]
+            );
+        }
+
+    });
+}
+/**
+ * -------------------------------------------------------------
+ *  PLUGIN UPDATES LOCK
+ * -------------------------------------------------------------
+ */
+if (!defined('CC_LCU_LOCK_PLUGINS') || CC_LCU_LOCK_PLUGINS !== false) {
+
+    /**
+     * -------------------------------------------------------------
+     *  Lista plugin con UI update da bloccare
+     *  ( filtrabile )
+     * -------------------------------------------------------------
+     */
+    function cc_lcu_ui_blocked_plugins()
+    {
+        return apply_filters(
+            'cc_lcu_blocked_plugin_update_ui',
+            []
         );
     }
 
-});
+    /**
+     * -------------------------------------------------------------
+     *  Guard helper
+     * -------------------------------------------------------------
+     *  Verifica se esiste almeno un plugin dichiarato
+     *  per il blocco degli aggiornamenti.
+     *
+     *  Se la lista è vuota :
+     *  - nessun hook viene registrato
+     *  - nessuna UI viene toccata
+     *  - nessun transient viene alterato
+     *
+     *  Serve come short-circuit per evitare
+     *  operazioni inutili e side-effect.
+     * -------------------------------------------------------------
+     */
+    function cc_lcu_has_blocked_plugins()
+    {
+        $plugins = cc_lcu_ui_blocked_plugins();
+        return is_array($plugins) && !empty($plugins);
+    }
 
+    /**
+     * -------------------------------------------------------------
+     *  Rimuove hook UI che iniettano update nella pagina plugin
+     * -------------------------------------------------------------
+     */
+    function cc_lcu_remove_plugin_update_ui()
+    {
 
-// // Filtro cc_lcu_allowed_emails ( esempio d’uso )
+        foreach (cc_lcu_ui_blocked_plugins() as $plugin) {
+            remove_all_actions("in_plugin_update_message-$plugin");
+            remove_all_actions("after_plugin_row_$plugin");
+        }
+    }
 
-// // Da altro MU-plugin o plugin custom:
+    /**
+     * -------------------------------------------------------------
+     *  Rimuove gli update dal transient ( engine level )
+     * -------------------------------------------------------------
+     */
+    function cc_lcu_remove_plugin_update_transient($transient)
+    {
 
-// add_filter('cc_lcu_allowed_emails', function ($emails, $user) {
+        if (!is_object($transient) || empty($transient->response)) {
+            return $transient;
+        }
 
-//     $emails[] = 'admin@codecorn.it';
+        foreach (cc_lcu_ui_blocked_plugins() as $plugin) {
+            unset($transient->response[$plugin]);
+        }
 
-//     return $emails;
+        return $transient;
+    }
 
-// }, 10, 2);
+    /**
+     * -------------------------------------------------------------
+     *  Plugin Update Locker – Bootstrap
+     * -------------------------------------------------------------
+     *  Punto di ingresso unico per il blocco degli aggiornamenti
+     *  dei plugin.
+     *
+     *  La funzione :
+     *  - verifica preventivamente se esistono plugin da bloccare
+     *  - in caso contrario esce immediatamente ( short-circuit )
+     *  - registra solo gli hook strettamente necessari
+     *
+     *  Questo approccio evita :
+     *  - hook inutili
+     *  - overhead in fase di init
+     *  - side-effect su installazioni non configurate
+     * -------------------------------------------------------------
+     */
+    function cc_plugin_locker()
+    {
+        // Safety : init già passato → non registrare hook
+        if (did_action('init')) {
+            return;
+        }
 
+        // Verifica se esiste almeno un plugin dichiarato , altrimenti esce
+        if (!cc_lcu_has_blocked_plugins()) {
+            return;
+        }
 
-// // Oppure dinamico per ruolo:
+        // Kill UI injection ( serve priority bassa )
+        add_action('init', 'cc_lcu_remove_plugin_update_ui', 1);
 
-// add_filter('cc_lcu_allowed_emails', function ($emails, $user) {
+        // Kill update engine response ( serve priority alta )
+        add_filter(
+            'site_transient_update_plugins',
+            'cc_lcu_remove_plugin_update_transient',
+            9999
+        );
+    }
 
-//     if (in_array('administrator', (array) $user->roles, true)) {
-//         $emails[] = $user->user_email;
-//     }
+    /**
+     * -------------------------------------------------------------
+     *  Hook registration
+     * -------------------------------------------------------------
+     *  Registra il bootstrap del plugin locker in fase di init.
+     *  La logica interna gestisce autonomamente
+     *  l’attivazione o meno del sistema.
+     * -------------------------------------------------------------
+     */
+    add_action('init', 'cc_plugin_locker', 1);
 
-//     return array_unique($emails);
-
-// }, 10, 2);
-
-// ## ✅ STRATEGIA ( consigliata CodeCorn™ )
-
-// ### 1️⃣ Flag globale di bypass
-
-// ```php
-// CC_LCU_ENABLED
-// ```
-
-// * `true`  → MU **attivo**
-// * `false` → MU **totalmente bypassato**
-
-// ---
-
-// ## 🧠 IMPLEMENTAZIONE ( minimale e sicura )
-
-// ### 🔐 Costante ( env-driven )
-
-// In **wp-config / WORDPRESS_CONFIG_EXTRA**:
-
-// ```php
-// defined('CC_LCU_ENABLED')
-//     || define(
-//         'CC_LCU_ENABLED',
-//         filter_var(
-//             getenv('CC_LCU_ENABLED') ?: true,
-//             FILTER_VALIDATE_BOOLEAN
-//         )
-//     );
-// ```
-
-// Nel `.env`:
-
-// ```env
-// CC_LCU_ENABLED=true
-// ```
-
-
-// ## 🧩 EXTRA ( opzionali ma top )
-
-// ### 🔁 Toggle via filtro
-
-// ```php
-// if (! apply_filters('cc_lcu_enabled', CC_LCU_ENABLED)) {
-//     return;
-// }
-// ```
-
-// Uso:
-
-// ```php
-// add_filter('cc_lcu_enabled', '__return_false');
-// ```
-
-// ---
-
-// ### 🛡️ Log quando qualcuno prova
-
-// ```php
-// do_action(
-//     'cc_lcu_blocked_access',
-//     $user,
-//     $pagenow
-// );
-// ```
-
-// ---
-
-// ### 🧠 Safe mode per staging
-
-// ```php
-// if (defined('WP_ENVIRONMENT_TYPE') && WP_ENVIRONMENT_TYPE !== 'production') {
-//     return;
-// }
-// ```
+}
