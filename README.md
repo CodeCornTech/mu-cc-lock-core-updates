@@ -5,7 +5,6 @@
 ![MU Plugin](https://img.shields.io/badge/MU%20Plugin-must--use-111111)
 ![License](https://img.shields.io/badge/License-GPL--2.0%2B-blue)
 
-
 **CodeCorn™ Must-Use Plugin**  
 Blocca completamente gli aggiornamenti del core WordPress , sia automatici che manuali .
 
@@ -24,6 +23,10 @@ Pensato per ambienti **gestiti , enterprise , Docker , CI/CD** dove gli update d
 -   ✅ MU-Plugin ( non disattivabile da admin )
 
 ---
+
+### 📥 Download diretto ( MU Plugin )
+
+👉 https://github.com/CodeCornTech/mu-cc-lock-core-updates/releases/latest/download/mu-cc-lock-core-updates.php
 
 ## 📦 Installazione
 
